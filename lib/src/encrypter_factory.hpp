@@ -5,17 +5,18 @@
 #ifndef ENCDYPTER_FACTORY_H_
 #define ENCDYPTER_FACTORY_H_
 #include "encrypt_api.h"
-
-typedef struct {
+namespace encapi {
+/* @brief encrypter interface */
+struct EncrypterIF{
 	int (*encrypt)(const char *src_buf, char **result_buf);
 	int (*decrypt)(const char *src_buf, char **result_buf);
-} *EncrypterIF;
+};
 
-typedef struct {
-	EncrypterIF (*create)(void);
-	void (*delete)(EncrypterIF instance);
-} *EncrypterFactory;
-
-EncrypterFactory enc_api_factory_new(enc_api_encrypt_type_e type);
-void enc_api_create_factory_free(EncrypterFactory this);
+struct EncrypterFactory{
+	EncrypterIF * (*create_if)(void);
+	void (*delete_if)(EncrypterIF *);
+};
+EncrypterFactory* get_factory(enc_api_encrypt_type_e type);
+void regist_encrypter(enc_api_encrypt_type_e type, EncrypterFactory * factory);
+}
 #endif/*ENCDYPTER_FACTORY_H_*/

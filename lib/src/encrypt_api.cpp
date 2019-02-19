@@ -1,22 +1,20 @@
 /**
- * @file encrypt_api.c
+ * @file encrypt_api.cpp
  * @brief Implement of encrypt_api.h main
  *
  **/
 #include <stdlib.h>
 #include <stdbool.h>
-#include "encrypter_factory.h"
+#include "encrypter_factory.hpp"
 
 static int enc_api_encrypt_action(enc_api_encrypt_type_e type, const char *src_buf, char **result_buf, bool is_enctype) {
 	int result_len = -1;
-	EncrypterFactory instance=NULL;
-	EncrypterIF encrypter=NULL;
+	encapi::EncrypterFactory * factory=NULL;
+	factory = encapi::get_factory(type);
+	if(!factory) return -1;
 
-	instance = enc_api_factory_new(type);
-	if(!instance) goto end;
-
-	encrypter = instance->create();
-	if(!encrypter) goto end;
+	encapi::EncrypterIF * encrypter = factory->create_if();
+	if(!encrypter) return -1;
 
 	if(is_enctype) {
 		result_len = encrypter->encrypt(src_buf, result_buf);
@@ -24,11 +22,7 @@ static int enc_api_encrypt_action(enc_api_encrypt_type_e type, const char *src_b
 		result_len = encrypter->decrypt(src_buf, result_buf);
 	}
 
-end:
-	if(!instance) {
-		if(!encrypter) instance->delete(encrypter);
-		enc_api_create_factory_free(instance);
-	}
+	factory->delete_if(encrypter);
 	return result_len;
 }
 
