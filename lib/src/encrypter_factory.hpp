@@ -8,8 +8,8 @@
 namespace encapi {
 /* @brief encrypter interface */
 struct EncrypterIF{
-	int (*encrypt)(const char *src_buf, char **result_buf);
-	int (*decrypt)(const char *src_buf, char **result_buf);
+	int (*encrypt)(const char *src_buf, int src_len, char **result_buf);
+	int (*decrypt)(const char *src_buf, int src_len, char **result_buf);
 };
 
 struct EncrypterFactory{

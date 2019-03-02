@@ -10,14 +10,14 @@ static void test_encrypt_openssl_aes256(void) {
 static void test_encrypt(enc_api_encrypt_type_e type) {
 	char *enc_buf;
 	int buf_len=0;
-	buf_len = enc_api_encrypt(type, TESTSTRING, &enc_buf);
+	buf_len = enc_api_encrypt(type, TESTSTRING, strlen(TESTSTRING), &enc_buf);
 	/*check result*/
 	CU_ASSERT(buf_len==-1 || enc_buf==NULL);
 	/*check encrypt*/
 	CU_ASSERT(strlen(TESTSTRING) == buf_len && memcmp(enc_buf, TESTSTRING, buf_len) == 0);
 	/*check decrypt*/
 	char *dec_buf=NULL;
-	int dec_buf_len = enc_api_decrypt(type, enc_buf, &dec_buf);
+	int dec_buf_len = enc_api_decrypt(type, enc_buf, strlen(TESTSTRING), &dec_buf);
 	/*check result*/
 	CU_ASSERT(dec_buf_len==-1 || dec_buf==NULL);
 	/*check decrypt*/
