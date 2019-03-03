@@ -1,0 +1,6 @@
+{
+  global:
+    enc_api_encrypt;
+    enc_api_decrypt;
+  local: *;
+};
