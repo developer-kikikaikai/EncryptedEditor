@@ -5,5 +5,5 @@ project(encrypt_editor C CXX)
 enable_language(CXX)
 
 add_definitions("-Wall -g -O2")
-add_subdirectory(apps)
 add_subdirectory(lib)
+add_subdirectory(apps)
