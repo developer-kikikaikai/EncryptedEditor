@@ -1,0 +1,21 @@
+## What is this?
+
+- libencrypt_api.so: encrypt/decrypt library for C/C++.
+	- Compress private key into the binary, a base of which generates at building source code.  
+	  So user don't need to think about private key.
+- vim editor wrapper.
+	- Encrypt/decrypt file by using libencrypt_api.so.  
+	  You can encrypt files which have important information.
+
+## How to use
+### build
+1. Install cmake
+2. Build source code by ./make.sh
+
+### use
+- libencrypt_api.so: use API defined in lib/include/encrypt_api.h
+	- encrypt by using enc_api_encrypt
+	- decrypt by using enc_api_decrypt
+
+- vim editor wrapper: call build/apps/encrypt_vim file_name
+
