@@ -11,7 +11,6 @@
 static int enc_api_encrypt_action(enc_api_encrypt_type_e type, const unsigned char *src_buf, int src_len, unsigned char **result_buf, bool is_enctype) {
 	int result_len = -1;
 	encapi::EncrypterFactory * factory=NULL;
-	fprintf(stderr, "enc_api_encrypt_action\n");
 	factory = encapi::get_factory(type);
 	if(!factory) return -1;
 

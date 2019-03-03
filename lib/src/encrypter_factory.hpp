@@ -8,13 +8,13 @@
 namespace encapi {
 /* @brief encrypter interface */
 struct EncrypterIF{
-	int (*encrypt)(const unsigned char *src_buf, int src_len, unsigned char **result_buf);
-	int (*decrypt)(const unsigned char *src_buf, int src_len, unsigned char **result_buf);
+	virtual int encrypt(const unsigned char *src_buf, int src_len, unsigned char **result_buf) = 0;
+	virtual int decrypt(const unsigned char *src_buf, int src_len, unsigned char **result_buf) = 0;
 };
 
 struct EncrypterFactory{
-	EncrypterIF * (*create_if)(void);
-	void (*delete_if)(EncrypterIF *);
+	virtual EncrypterIF * create_if(void) = 0;
+	virtual void delete_if(EncrypterIF *) = 0;
 };
 EncrypterFactory* get_factory(enc_api_encrypt_type_e type);
 void regist_encrypter(enc_api_encrypt_type_e type, EncrypterFactory * factory);
