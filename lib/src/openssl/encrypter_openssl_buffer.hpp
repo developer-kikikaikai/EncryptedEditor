@@ -22,7 +22,7 @@ public:
 		_padding_len = len;
 	}
 	int allocate(int src_len, unsigned char ** result_buf) {
-		unsigned char *buf = (unsigned char *)calloc(1, src_len + _padding_len);
+		unsigned char *buf = (unsigned char *)calloc(1, src_len + _padding_len + 1);
 		if(buf == NULL) return 0;
 		*result_buf = buf;
 		return src_len;

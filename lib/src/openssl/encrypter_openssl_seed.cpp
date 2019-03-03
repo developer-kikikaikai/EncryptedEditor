@@ -6,6 +6,12 @@
 #include <stdlib.h>
 
 namespace encapi::openssl {
+static unsigned char *local_private_key=NULL;
+
+__attribute__((destructor))
+static void destroy_base_data(void) {
+	free(local_private_key);
+}
 static void base64_encode(const unsigned char* src_buf, size_t src_len, unsigned char** result) {
 	EVP_EncodeBlock(*result, src_buf, src_len);
 }
@@ -62,7 +68,6 @@ ZoSoEVOPsiypPV8yavTqMGJLDXYUZqEkbY8kSFvxtIayIRf/9Naw1FV22hS2VoF3\
 mRZpThpRjmNTllBsz6DntzDd2sjmS+JRDh4r/rpD01wbcqS6tQYN/Yq+sLSMhVsE\
 XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 ";
-	static unsigned char *local_private_key=NULL;
 	if(local_private_key != NULL) {
 		return local_private_key;
 	}
@@ -72,7 +77,7 @@ XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 	for(i=0;i<len; i++) {
 		local_key_data[i] = local_key_data[i] ^ seed[i];
 	}
-	local_private_key = (unsigned char *)calloc(1, len * 4/3);
+	local_private_key = (unsigned char *)calloc(1, len * 2);
 	base64_encode(local_key_data, len, &local_private_key);
         return local_private_key;
 }

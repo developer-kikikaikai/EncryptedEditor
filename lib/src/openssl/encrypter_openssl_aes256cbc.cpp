@@ -4,7 +4,7 @@
 #include "encrypter_openssl_seed.hpp"
 
 namespace encapi::openssl {
-#define AES256CBC_PADDING (16)
+#define AES256CBC_PADDING (32)
 static class BaseAllocater encode_allocater_g = BaseAllocater(AES256CBC_PADDING);
 static class BaseAllocater decode_allocater_g = BaseAllocater(0);
 
