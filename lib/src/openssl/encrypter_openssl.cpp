@@ -4,7 +4,6 @@
 #include <string.h>
 #include "encrypter_factory.hpp"
 #include "encrypter_openssl.hpp"
-#include <stdio.h>
 
 namespace encapi::openssl {
 
@@ -30,7 +29,6 @@ int EncrypterOpenssl::encrypt(const unsigned char *src_buf, int src_len, unsigne
 	buffer.padding(result_len);
 
 	*result_buf = buffer.pop();
-	fprintf(stderr, "%s exit %d\n", __FUNCTION__, result_len);
 	return result_len;
 }
 
@@ -56,7 +54,6 @@ int EncrypterOpenssl::decrypt(const unsigned char *src_buf, int src_len, unsigne
 	buffer.padding(result_len);
 
 	*result_buf = buffer.pop();
-	fprintf(stderr, "%s exit %d\n", __FUNCTION__, result_len);
 	return result_len;
 }
 }

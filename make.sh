@@ -13,7 +13,7 @@ echo -n "\";
 }
 ">> lib/src/encrypter_seed.cpp
 fi
-
+#rm ${PRIVATEFILE}
 mkdir -p build
 cd build
 cmake ../
