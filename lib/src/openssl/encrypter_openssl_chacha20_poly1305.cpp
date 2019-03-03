@@ -18,7 +18,7 @@ private:
 	}
 
 	const EVP_CIPHER * _get_evp_cipher() {
-		return EVP_camellia_256_cbc();
+		return EVP_chacha20_poly1305();
 	}
 public:
 	EncrypterCHACHA20_POLY1305() {

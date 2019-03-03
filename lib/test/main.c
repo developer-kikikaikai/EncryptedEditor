@@ -48,7 +48,7 @@ static void test_encrypt(enc_api_encrypt_type_e type) {
 	/*check result*/
        	CU_ASSERT_FATAL(0 < buf_len && enc_buf!=NULL);
 	/*check encrypt*/
-	CU_ASSERT(strlen(TESTSTRING) != buf_len && memcmp(enc_buf, TESTSTRING, buf_len) != 0);
+	CU_ASSERT(strlen(TESTSTRING) != buf_len || memcmp(enc_buf, TESTSTRING, buf_len) != 0);
 	/*check decrypt*/
 	unsigned char *dec_buf=NULL;
 	int dec_buf_len = enc_api_decrypt(type, (const unsigned char *)enc_buf, buf_len, &dec_buf);
@@ -67,7 +67,7 @@ static void test_encrypt_binary(enc_api_encrypt_type_e type) {
 	/*check result*/
        	CU_ASSERT_FATAL(0 < buf_len && enc_buf!=NULL);
 	/*check encrypt*/
-	CU_ASSERT(TESTBINARY_LEN != buf_len && memcmp(enc_buf, TESTBINARY, buf_len) != 0);
+	CU_ASSERT(TESTBINARY_LEN != buf_len || memcmp(enc_buf, TESTBINARY, buf_len) != 0);
 	/*check decrypt*/
 	unsigned char *dec_buf=NULL;
 	int dec_buf_len = enc_api_decrypt(type, enc_buf, buf_len, &dec_buf);
