@@ -4,7 +4,7 @@
 #include "encrypter_openssl_seed.hpp"
 
 namespace encapi::openssl {
-#define CHACHA20_POLY1305_PADDING (64)
+#define CHACHA20_POLY1305_PADDING (32)
 static class BaseAllocater encode_allocater_g = BaseAllocater(CHACHA20_POLY1305_PADDING);
 static class BaseAllocater decode_allocater_g = BaseAllocater(0);
 
