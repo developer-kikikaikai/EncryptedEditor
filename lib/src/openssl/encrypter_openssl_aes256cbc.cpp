@@ -1,6 +1,7 @@
 #include "encrypter_openssl_buffer.hpp"
 #include "encrypter_openssl.hpp"
 #include "encrypter_openssl_aes256cbc.hpp"
+#include "encrypter_seed.hpp"
 
 namespace encapi::openssl {
 #define AES256CBC_PADDING (16)
@@ -10,8 +11,10 @@ static class BaseAllocater decode_allocater_g = BaseAllocater(0);
 class EncrypterAES256CBC : public EncrypterOpenssl {
 private:
 	const unsigned char * _get_key(void) {
-		static const unsigned char key[]="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-		return key;
+		const unsigned char * seed = get_seed();
+//		static const unsigned char key[]="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+//		return key;
+		return seed;
 	}
 	const unsigned char * _get_iv(void) {
 		static const unsigned  char iv[]= "1234567890123456";
