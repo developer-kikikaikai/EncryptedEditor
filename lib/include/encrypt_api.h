@@ -19,7 +19,7 @@ typedef enum {
  * @return encrypted data length. error if return negative value
  * @note please release result_buf by using free
  */
-int enc_api_encrypt(enc_api_encrypt_type_e type, const char *src_buf, int src_len, char ** result_buf);
+int enc_api_encrypt(enc_api_encrypt_type_e type, const unsigned char *src_buf, int src_len, unsigned char ** result_buf);
 /**
  * @brief decrypt
  * @param[in] type encryption type
@@ -29,7 +29,7 @@ int enc_api_encrypt(enc_api_encrypt_type_e type, const char *src_buf, int src_le
  * @return encrypted data length. error if return negative value
  * @note please release result_buf by using free
  */
-int enc_api_decrypt(enc_api_encrypt_type_e type, const char *src_buf, int src_len, char ** result_buf);
+int enc_api_decrypt(enc_api_encrypt_type_e type, const unsigned char *src_buf, int src_len, unsigned char ** result_buf);
 #ifdef __cplusplus
 }
 #endif  /*! __cplusplus */

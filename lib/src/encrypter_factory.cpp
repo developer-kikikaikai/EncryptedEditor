@@ -4,8 +4,10 @@
  *
  **/
 #include <stdlib.h>
+#include <stdio.h>
 #include <map>
 #include "encrypter_factory.hpp"
+#include "encrypter_openssl.h"
 
 static std::map<enc_api_encrypt_type_e, encapi::EncrypterFactory *> factory_map;
 
@@ -21,6 +23,7 @@ EncrypterFactory* get_factory(enc_api_encrypt_type_e type) {
 }
 
 void regist_encrypter(enc_api_encrypt_type_e type, EncrypterFactory * factory) {
+	fprintf(stderr, "regist_encrypter\n");
 	factory_map[type] = factory;
 }
 }
