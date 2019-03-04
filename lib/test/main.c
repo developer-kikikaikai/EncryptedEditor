@@ -8,6 +8,7 @@
 static unsigned char test_binary[TESTBINARY_LEN];
 #define TESTBINARY test_binary
 #define TEST_MULTITIME (50)
+#define TEST_LARGEDATA_LEN (8192)
 
 __attribute__((constructor))
 static void test_initialize() {
@@ -22,6 +23,7 @@ static void test_encrypt_multitimes(enc_api_encrypt_type_e type);
 static void test_encrypt_uniq_encode(enc_api_encrypt_type_e type);
 static void test_encrypt_binary(enc_api_encrypt_type_e type);
 static void test_encrypt_zero(enc_api_encrypt_type_e type);
+static void test_encrypt_largedata(enc_api_encrypt_type_e type);
 static void test_encrypt_all(enc_api_encrypt_type_e type);
 
 static void test_encrypt_aes256(void) {
@@ -46,6 +48,7 @@ static void test_encrypt_all(enc_api_encrypt_type_e type) {
 	test_encrypt_zero(type);
 	test_encrypt_multitimes(type);
 	test_encrypt_uniq_encode(type);
+	test_encrypt_largedata(type);
 }
 
 static void test_encrypt(enc_api_encrypt_type_e type) {
@@ -80,6 +83,8 @@ static void test_encrypt_binary(enc_api_encrypt_type_e type) {
 	int dec_buf_len = enc_api_decrypt(type, enc_buf, buf_len, &dec_buf);
 	/*check result*/
 	CU_ASSERT_FATAL(0 < dec_buf_len && dec_buf!=NULL);
+	/*check decrypt*/
+	CU_ASSERT(TESTBINARY_LEN == dec_buf_len && memcmp(dec_buf, TESTBINARY, buf_len) == 0);
 	/*check decrypt*/
 	free(enc_buf);
 	free(dec_buf);
@@ -146,6 +151,31 @@ static void test_encrypt_uniq_encode(enc_api_encrypt_type_e type) {
 	}
 	free(enc_bufs);
 	free(buf_lens);
+}
+
+static void test_encrypt_largedata(enc_api_encrypt_type_e type) {
+	unsigned char *base_buf=calloc(1, TEST_LARGEDATA_LEN);
+	int i=0;
+	for(i=0;i<TEST_LARGEDATA_LEN;i++) {
+		base_buf[i]=i;
+	}
+	unsigned char *enc_buf=NULL;
+	int buf_len=0;
+	buf_len = enc_api_encrypt(type, base_buf, TEST_LARGEDATA_LEN, &enc_buf);
+	/*check result*/
+       	CU_ASSERT_FATAL(0 < buf_len && enc_buf!=NULL);
+	/*check encrypt*/
+	CU_ASSERT(TEST_LARGEDATA_LEN != buf_len || memcmp(enc_buf, base_buf, TEST_LARGEDATA_LEN) != 0);
+	/*check decrypt*/
+	unsigned char *dec_buf=NULL;
+	int dec_buf_len = enc_api_decrypt(type, enc_buf, buf_len, &dec_buf);
+	/*check result*/
+	CU_ASSERT_FATAL(0 < dec_buf_len && dec_buf!=NULL);
+	/*check decrypt*/
+	CU_ASSERT(TEST_LARGEDATA_LEN == dec_buf_len && memcmp(dec_buf, base_buf, TEST_LARGEDATA_LEN) == 0);
+	free(enc_buf);
+	free(dec_buf);
+	free(base_buf);
 }
 
 static struct {
