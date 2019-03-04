@@ -15,7 +15,7 @@ static void destroy_base_data(void) {
 static void base64_encode(const unsigned char* src_buf, size_t src_len, unsigned char** result) {
 	EVP_EncodeBlock(*result, src_buf, src_len);
 }
-const unsigned char * get_base_key(void) {
+const unsigned char * get_base_key(unsigned char *seed, int length) {
 	unsigned char local_key_data[]="\
 UIOOja1nUFFV5sbXHl0rfhWtqofYadpXULaWx4jtw840xfJvvlC9SZWdNwHbOmVP\
 HZ215M+LjtLD32nQlSVe+Fs1Bn2g3XhIBUeyUgRsupK4bvjX0fDiZQOaywwdcqiU\
@@ -72,10 +72,10 @@ XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 		return local_private_key;
 	}
 
-	const unsigned char *seed = get_seed();
-	int len=strlen((const char *)seed), i=0;
-	for(i=0;i<len; i++) {
-		local_key_data[i] = local_key_data[i] ^ seed[i];
+	const unsigned char *local_seed = get_seed();
+	int len=strlen((const char *)local_seed), i=0, j=0;
+	for(i=0;i<len; i++, j=(j+1)%length) {
+		local_key_data[i] = ((local_key_data[i] ^ local_seed[i])) ^ seed[j];
 	}
 	local_private_key = (unsigned char *)calloc(1, len * 2);
 	base64_encode(local_key_data, len, &local_private_key);
@@ -84,20 +84,24 @@ XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 
 #define ENCDYPTER_OPENSSL_IV (16)
 #define ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE (9)
-const unsigned char * get_base_iv(void) {
+const unsigned char * get_base_iv(unsigned char *seed, int length) {
 	static unsigned char local_iv_data[ENCDYPTER_OPENSSL_IV]={0};
 	if(local_iv_data[0] != 0) {
 		return local_iv_data;
 	}
 
-	const unsigned char *seed=get_base_key();
+	const unsigned char *local_seed=get_base_key(seed, length);
 	unsigned char local_tmp_iv_data[ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE]={0};
-	int block_len=strlen((const char *)seed)/ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE, i=0;
+	int block_len=strlen((const char *)local_seed)/ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE, i=0;
 	int block_index=0;
 	for(block_index=0;block_index<block_len;block_index++) {
 		for(i=0;i<ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE;i++) {
-			local_tmp_iv_data[i] = local_tmp_iv_data[i] ^ seed[ (ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE * block_index) + i];
+			local_tmp_iv_data[i] = local_tmp_iv_data[i] ^ local_seed[ (ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE * block_index) + i];
 		}
+	}
+	int j=0;
+	for(i=0;i<ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE;i++, j=(j+1)%length) {
+		local_tmp_iv_data[i] = local_tmp_iv_data[i] ^ seed[j];
 	}
 	unsigned char *buf = local_iv_data;
 	base64_encode(local_tmp_iv_data, sizeof(local_tmp_iv_data), &buf);

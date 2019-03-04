@@ -7,7 +7,7 @@
 #define TESTBINARY_LEN (50)
 static unsigned char test_binary[TESTBINARY_LEN];
 #define TESTBINARY test_binary
-#define TESTBINARY_LEN (50)
+#define TEST_MULTITIME (50)
 
 __attribute__((constructor))
 static void test_initialize() {
@@ -18,8 +18,12 @@ static void test_initialize() {
 }
 
 static void test_encrypt(enc_api_encrypt_type_e type);
+static void test_encrypt_multitimes(enc_api_encrypt_type_e type);
+static void test_encrypt_uniq_encode(enc_api_encrypt_type_e type);
 static void test_encrypt_binary(enc_api_encrypt_type_e type);
+static void test_encrypt_zero(enc_api_encrypt_type_e type);
 static void test_encrypt_all(enc_api_encrypt_type_e type);
+
 static void test_encrypt_aes256(void) {
 	test_encrypt_all(ENC_API_ENCRYPT_TYPE_AES256_CBC);
 }
@@ -39,6 +43,9 @@ static void test_encrypt_chacha20_poly1305(void) {
 static void test_encrypt_all(enc_api_encrypt_type_e type) {
 	test_encrypt(type);
 	test_encrypt_binary(type);
+	test_encrypt_zero(type);
+	test_encrypt_multitimes(type);
+	test_encrypt_uniq_encode(type);
 }
 
 static void test_encrypt(enc_api_encrypt_type_e type) {
@@ -74,9 +81,71 @@ static void test_encrypt_binary(enc_api_encrypt_type_e type) {
 	/*check result*/
 	CU_ASSERT_FATAL(0 < dec_buf_len && dec_buf!=NULL);
 	/*check decrypt*/
-	CU_ASSERT(TESTBINARY_LEN == dec_buf_len && memcmp(dec_buf, TESTBINARY, dec_buf_len) == 0);
 	free(enc_buf);
 	free(dec_buf);
+}
+
+static void test_encrypt_zero(enc_api_encrypt_type_e type) {
+	unsigned char *buf=NULL;
+	int buf_len=0;
+	buf_len = enc_api_encrypt(type, 0, 0, &buf);
+	CU_ASSERT_FATAL(buf_len <= 0 && buf==NULL);
+	buf_len = enc_api_decrypt(type, 0, 0, &buf);
+	CU_ASSERT_FATAL(buf_len <= 0 && buf==NULL);
+}
+
+static void test_encrypt_multitimes(enc_api_encrypt_type_e type) {
+	unsigned char first_string[]=TESTSTRING;
+	unsigned char **enc_bufs=calloc(TEST_MULTITIME+1, sizeof(unsigned char *));
+	int *buf_lens=calloc(TEST_MULTITIME+1, sizeof(int));
+	enc_bufs[0]=first_string;
+	buf_lens[0]=strlen(TESTSTRING);
+	int i=0;
+	for(i=0;i<TEST_MULTITIME;i++) {
+		buf_lens[i+1] = enc_api_encrypt(type, enc_bufs[i], buf_lens[i], &enc_bufs[i+1]);
+		/*check result*/
+       		CU_ASSERT_FATAL(0 < buf_lens[i+1] && enc_bufs[i+1]!=NULL);
+		/*check encrypt*/
+		CU_ASSERT(TESTBINARY_LEN != buf_lens[i+1] || memcmp(enc_bufs[i+1], enc_bufs[i], buf_lens[i+1]) != 0);
+	}
+	/*check decrypt*/
+	unsigned char **dec_bufs=calloc(TEST_MULTITIME, sizeof(unsigned char *));
+	int *dec_buf_lens=calloc(TEST_MULTITIME, sizeof(int));
+	for(i=TEST_MULTITIME-1;0<i;i--) {
+		dec_buf_lens[i] = enc_api_decrypt(type, enc_bufs[i+1], buf_lens[i+1], &dec_bufs[i]);
+		/*check result*/
+		CU_ASSERT_FATAL(0 < dec_buf_lens[i] && dec_bufs[i]!=NULL);
+		CU_ASSERT(buf_lens[i] == dec_buf_lens[i] && memcmp(dec_bufs[i], enc_bufs[i], dec_buf_lens[i]) == 0);
+		free(enc_bufs[i+1]);
+		free(dec_bufs[i]);
+	}
+	free(enc_bufs);
+	free(buf_lens);
+}
+
+static void test_encrypt_uniq_encode(enc_api_encrypt_type_e type) {
+	unsigned char first_string[]=TESTSTRING;
+	unsigned char **enc_bufs=calloc(TEST_MULTITIME+1, sizeof(unsigned char *));
+	int *buf_lens=calloc(TEST_MULTITIME+1, sizeof(int));
+	enc_bufs[0]=first_string;
+	buf_lens[0]=strlen(TESTSTRING);
+	int i=0;
+	for(i=0;i<TEST_MULTITIME;i++) {
+		buf_lens[i+1] = enc_api_encrypt(type, enc_bufs[i], buf_lens[i], &enc_bufs[i+1]);
+		/*check result*/
+       		CU_ASSERT_FATAL(0 < buf_lens[i+1] && enc_bufs[i+1]!=NULL);
+		/*check encrypt*/
+		CU_ASSERT(TESTBINARY_LEN != buf_lens[i+1] || memcmp(enc_bufs[i+1], enc_bufs[i], buf_lens[i+1]) != 0);
+	}
+	int j=0;
+	for(i=TEST_MULTITIME-1;i<1;i--) {
+		for(j=i-1;j<0;j--) {
+			CU_ASSERT(buf_lens[i] != buf_lens[j] || memcmp(enc_bufs[i], enc_bufs[j], buf_lens[j]) != 0);
+		}
+		free(enc_bufs[i]);
+	}
+	free(enc_bufs);
+	free(buf_lens);
 }
 
 static struct {

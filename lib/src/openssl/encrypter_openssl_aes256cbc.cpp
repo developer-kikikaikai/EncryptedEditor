@@ -10,11 +10,11 @@ static class BaseAllocater decode_allocater_g = BaseAllocater(0);
 
 class EncrypterAES256CBC : public EncrypterOpenssl {
 private:
-	const unsigned char * _get_key(void) {
-		return get_base_key();
+	const unsigned char * _get_key(unsigned char * seed, int length) {
+		return get_base_key(seed, length);
 	}
-	const unsigned char * _get_iv(void) {
-		return get_base_iv();
+	const unsigned char * _get_iv(unsigned char * seed, int length) {
+		return get_base_iv(seed, length);
 	}
 
 	const EVP_CIPHER * _get_evp_cipher() {
