@@ -24,7 +24,7 @@ void check_swap_file(char *swpfname) {
 		return;
 	}
 
-	fprintf(stderr, "There is a swap file \".%s.swp\"!\n", swpfname);
+	fprintf(stderr, "There is a swap file \"%s\"!\n", swpfname);
 	fprintf(stderr, "Is it OK to overwrite it? (Y/N)");
 	int ch = getchar();
 	if(ch != 'y' && ch != 'Y') {
@@ -62,8 +62,20 @@ static void destruct_file_mng(file_mng_t *fmng) {
 	close(fmng->fd);
 	munmap(fmng->buf, fmng->mapsize);
 }
+static int decrypt_buffer(file_mng_t *fmng, unsigned char **buf) {
+	return enc_api_decrypt(ENC_ALGORITHM, fmng->buf, fmng->realsize, buf);
+}
+static int encrypt_buffer(file_mng_t *fmng, unsigned char **buf) {
+	return enc_api_encrypt(ENC_ALGORITHM, fmng->buf, fmng->realsize, buf);
+}
+static int copy_buffer(file_mng_t *fmng, unsigned char **buf) {
+	*buf = (unsigned char *)calloc(1, fmng->realsize);
+	if(*buf == NULL) return 0;
+	memcpy(*buf, fmng->buf, fmng->realsize);
+	return (int) fmng->realsize;
+}
 
-void decrypt_file(char *basefile, char *decrypted_file) {
+static void output_file(char *basefile, char *outfile, int (*flush_buffer)(file_mng_t *fmng, unsigned char **buf)) {
 	struct stat fcheck;
 	if(stat(basefile, &fcheck) != 0) {
 		return;
@@ -75,32 +87,41 @@ void decrypt_file(char *basefile, char *decrypted_file) {
 		exit(0);
 	}
 
-	unsigned char *decrypt_buf=NULL;
-	int len = enc_api_decrypt(ENC_ALGORITHM, fmng.buf, fmng.realsize, &decrypt_buf);
-	if(len <= 0) {
-		fprintf(stderr, "decrypt file %s error\n", basefile);
-		goto err;
+	unsigned char *out_buf=NULL;
+	int len=0;
+	if(fmng.realsize) {
+		len = flush_buffer( &fmng, &out_buf);
+		if(len <= 0) {
+			fprintf(stderr, "flush file buffer %s error\n", basefile);
+			goto err;
+		}
 	}
 
-	FILE *fp = fopen(decrypted_file, "w");
+	FILE *fp = fopen(outfile, "w");
 	if(fp == NULL) {
-		fprintf(stderr, "write decrypted string %s error\n", basefile);
+		fprintf(stderr, "open file %s error\n", outfile);
 		goto err;
 	}
 
-	if(fwrite(decrypt_buf, 1, len, fp)<=0) {
-		fprintf(stderr, "write decrypted string %s error\n", basefile);
-		goto err;
+	if(fmng.realsize) {
+		if(fwrite(out_buf, 1, fmng.realsize, fp)<=0) {
+			fprintf(stderr, "write file %s error\n", outfile);
+			goto err;
+		}
 	}
 
 	fclose(fp);
-	free(decrypt_buf);
+	free(out_buf);
 	destruct_file_mng(&fmng);
 	return ;
 err:
-	free(decrypt_buf);
+	free(out_buf);
 	destruct_file_mng(&fmng);
 	exit(-1);
+}
+
+void decrypt_file(char *basefile, char *decrypted_file) {
+	output_file(basefile, decrypted_file, decrypt_buffer);
 }
 
 void open_editor(char * decrypted_fname) {
@@ -118,36 +139,9 @@ void open_editor(char * decrypted_fname) {
 }
 
 void encrypt_file(char *decrypted_file, char *basefile) {
-	file_mng_t fmng;
-	if(construct_file_mng(decrypted_file, &fmng) != 0) {
-		fprintf(stderr, "file %s open error\n", decrypted_file);
-		exit(0);
-	}
+	output_file(decrypted_file, basefile, encrypt_buffer);
+}
 
-	unsigned char *encrypt_buf=NULL;
-	int len = enc_api_encrypt(ENC_ALGORITHM, fmng.buf, fmng.realsize, &encrypt_buf);
-	if(len <= 0) {
-		fprintf(stderr, "encrypt file %s error\n", decrypted_file);
-		goto err;
-	}
-
-	FILE *fp = fopen(basefile, "w");
-	if(fp == NULL) {
-		fprintf(stderr, "write encrypted string %s error\n", basefile);
-		goto err;
-	}
-
-	if(fwrite(encrypt_buf, 1, len, fp)<=0) {
-		fprintf(stderr, "write encrypted string %s error\n", basefile);
-		goto err;
-	}
-
-	fclose(fp);
-	free(encrypt_buf);
-	destruct_file_mng(&fmng);
-	return ;
-err:
-	free(encrypt_buf);
-	destruct_file_mng(&fmng);
-	exit(-1);
+void copy_file(char *basefile, char *copyfile) {
+	output_file(basefile, copyfile, copy_buffer);
 }
