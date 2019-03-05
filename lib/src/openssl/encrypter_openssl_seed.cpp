@@ -6,8 +6,8 @@
 #include <stdlib.h>
 
 namespace encapi::openssl {
-static unsigned char *local_private_key=NULL;
 
+static unsigned char *local_private_key = NULL;
 __attribute__((destructor))
 static void destroy_base_data(void) {
 	free(local_private_key);
@@ -68,16 +68,14 @@ ZoSoEVOPsiypPV8yavTqMGJLDXYUZqEkbY8kSFvxtIayIRf/9Naw1FV22hS2VoF3\
 mRZpThpRjmNTllBsz6DntzDd2sjmS+JRDh4r/rpD01wbcqS6tQYN/Yq+sLSMhVsE\
 XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 ";
-	if(local_private_key != NULL) {
-		return local_private_key;
-	}
-
 	const unsigned char *local_seed = get_seed();
 	int len=strlen((const char *)local_seed), i=0, j=0;
 	for(i=0;i<len; i++, j=(j+1)%length) {
 		local_key_data[i] = ((local_key_data[i] ^ local_seed[i])) ^ seed[j];
 	}
-	local_private_key = (unsigned char *)calloc(1, len * 2);
+	if(local_private_key == NULL) {
+		local_private_key = (unsigned char *)calloc(1, len * 2);
+	}
 	base64_encode(local_key_data, len, &local_private_key);
         return local_private_key;
 }
@@ -86,9 +84,6 @@ XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 #define ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE (9)
 const unsigned char * get_base_iv(unsigned char *seed, int length) {
 	static unsigned char local_iv_data[ENCDYPTER_OPENSSL_IV]={0};
-	if(local_iv_data[0] != 0) {
-		return local_iv_data;
-	}
 
 	const unsigned char *local_seed=get_base_key(seed, length);
 	unsigned char local_tmp_iv_data[ENCDYPTER_OPENSSL_IV_BEFORE_ENCODE]={0};

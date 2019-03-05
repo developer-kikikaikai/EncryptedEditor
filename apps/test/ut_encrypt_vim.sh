@@ -22,10 +22,8 @@ fi
 
 echo "Success to decode file"
 $APPFILE -e $BASEFILE
-#cp $BASEFILE bk1_$BASEFILE
 $APPFILE $BASEFILE
-#cp $BASEFILE bk2_$BASEFILE
-#$APPFILE -d $BASEFILE
+$APPFILE -d $BASEFILE
 diff $BASEFILE ${BASEFILE}.bk
 if [ ! $? -eq 0 ]; then
 	echo "Failed to open encrypted file"
