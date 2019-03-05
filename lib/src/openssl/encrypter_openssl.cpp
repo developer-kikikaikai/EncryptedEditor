@@ -31,7 +31,7 @@ int EncrypterOpenssl::encrypt(const unsigned char *src_buf, int src_len, unsigne
 	/*initialize EVP_CIPHER_CTX*/
 	EncrypterBuffer buffer(enc_allocater);
 
-	buffer.allocate(src_len + ENC_OPENSSL_SALT_LEN);
+	buffer.allocate(src_len + ENC_OPENSSL_SALT_LEN + 1);
 
 	unsigned char salt[ENC_OPENSSL_SALT_LEN + 1];
 	get_salt(salt);
@@ -69,7 +69,7 @@ int EncrypterOpenssl::decrypt(const unsigned char *src_buf, int src_len, unsigne
 	/*initialize EVP_CIPHER_CTX*/
 	EncrypterBuffer buffer(dec_allocater);
 
-	buffer.allocate(src_len);
+	buffer.allocate(src_len + 1);
 
 	if(1 != EVP_DecryptInit_ex(buffer.ctx, _get_evp_cipher(), NULL, _get_key(salt, ENC_OPENSSL_SALT_LEN), _get_iv(salt, ENC_OPENSSL_SALT_LEN))) return buffer._handle_err();
 

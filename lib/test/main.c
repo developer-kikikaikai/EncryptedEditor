@@ -19,6 +19,7 @@ static void test_initialize() {
 }
 
 static void test_encrypt(enc_api_encrypt_type_e type);
+static void test_encrypt_loop(enc_api_encrypt_type_e type);
 static void test_encrypt_multitimes(enc_api_encrypt_type_e type);
 static void test_encrypt_uniq_encode(enc_api_encrypt_type_e type);
 static void test_encrypt_binary(enc_api_encrypt_type_e type);
@@ -44,6 +45,7 @@ static void test_encrypt_chacha20_poly1305(void) {
 
 static void test_encrypt_all(enc_api_encrypt_type_e type) {
 	test_encrypt(type);
+	test_encrypt_loop(type);
 	test_encrypt_binary(type);
 	test_encrypt_zero(type);
 	test_encrypt_multitimes(type);
@@ -68,6 +70,28 @@ static void test_encrypt(enc_api_encrypt_type_e type) {
 	CU_ASSERT(strlen(TESTSTRING) == dec_buf_len && strcmp((const char *)dec_buf, TESTSTRING) == 0);
 	free(enc_buf);
 	free(dec_buf);
+}
+
+static void test_encrypt_loop(enc_api_encrypt_type_e type) {
+	unsigned char *enc_buf=NULL;
+	int i=0;
+	for(i=0;i<TEST_MULTITIME;i++) {
+		int buf_len=0;
+		buf_len = enc_api_encrypt(type, (const unsigned char *)TESTSTRING, strlen(TESTSTRING), &enc_buf);
+		/*check result*/
+	       	CU_ASSERT_FATAL(0 < buf_len && enc_buf!=NULL);
+		/*check encrypt*/
+		CU_ASSERT(strlen(TESTSTRING) != buf_len || memcmp(enc_buf, TESTSTRING, buf_len) != 0);
+		/*check decrypt*/
+		unsigned char *dec_buf=NULL;
+		int dec_buf_len = enc_api_decrypt(type, (const unsigned char *)enc_buf, buf_len, &dec_buf);
+		/*check result*/
+		CU_ASSERT_FATAL(0 < dec_buf_len && dec_buf!=NULL);
+		/*check decrypt*/
+		CU_ASSERT(strlen(TESTSTRING) == dec_buf_len && strcmp((const char *)dec_buf, TESTSTRING) == 0);
+		free(enc_buf);
+		free(dec_buf);
+	}
 }
 
 static void test_encrypt_binary(enc_api_encrypt_type_e type) {

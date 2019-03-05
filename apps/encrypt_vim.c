@@ -36,10 +36,6 @@ static int construct_file_mng(char *fname, file_mng_t *fmng) {
 	fmng->fd = open(fname, O_RDONLY);
 	if(fmng->fd < 0) return -1;
 
-	/*to get file size*/
-	FILE * fp = fdopen(fmng->fd, "rb");
-	if (fp == NULL) goto err;
-
 	struct stat stbuf;//file size = stbuf.st_size
 	if (fstat(fmng->fd, &stbuf) == -1) goto err;
 
@@ -49,10 +45,8 @@ static int construct_file_mng(char *fname, file_mng_t *fmng) {
 	fmng->buf = (unsigned char*)mmap(NULL, fmng->mapsize, PROT_READ, MAP_SHARED, fmng->fd, 0);
 	if(fmng->buf == MAP_FAILED) goto err;
 
-	/*fp of fdopen has relation of fmng->fd. So the stream fp doesn't close.*/
 	return 0;
 err:
-	/*fp of fdopen has relation of fmng->fd. So the stream fp doesn't close.*/
 	close(fmng->fd);
 	memset(fmng, 0, sizeof(file_mng_t));
 	return -1;
@@ -76,12 +70,12 @@ static int copy_buffer(file_mng_t *fmng, unsigned char **buf) {
 }
 
 static void output_file(char *basefile, char *outfile, int (*flush_buffer)(file_mng_t *fmng, unsigned char **buf)) {
-	struct stat fcheck;
+	struct stat fcheck={0};
 	if(stat(basefile, &fcheck) != 0) {
 		return;
 	}
 
-	file_mng_t fmng;
+	file_mng_t fmng={0};
 	if(construct_file_mng(basefile, &fmng) != 0) {
 		fprintf(stderr, "file %s open error\n", basefile);
 		exit(0);
@@ -89,8 +83,9 @@ static void output_file(char *basefile, char *outfile, int (*flush_buffer)(file_
 
 	unsigned char *out_buf=NULL;
 	int len=0;
-	if(fmng.realsize) {
-		len = flush_buffer( &fmng, &out_buf);
+
+	if(0 < fmng.realsize) {
+		len = flush_buffer(&fmng, &out_buf);
 		if(len <= 0) {
 			fprintf(stderr, "flush file buffer %s error\n", basefile);
 			goto err;
@@ -103,9 +98,10 @@ static void output_file(char *basefile, char *outfile, int (*flush_buffer)(file_
 		goto err;
 	}
 
-	if(fmng.realsize) {
-		if(fwrite(out_buf, 1, fmng.realsize, fp)<=0) {
+	if(0 < fmng.realsize) {
+		if(fwrite(out_buf, len, 1, fp)<=0) {
 			fprintf(stderr, "write file %s error\n", outfile);
+			fclose(fp);
 			goto err;
 		}
 	}
@@ -120,8 +116,8 @@ err:
 	exit(-1);
 }
 
-void decrypt_file(char *basefile, char *decrypted_file) {
-	output_file(basefile, decrypted_file, decrypt_buffer);
+void decrypt_file(char *srcfile, char *distfile) {
+	output_file(srcfile, distfile, decrypt_buffer);
 }
 
 void open_editor(char * decrypted_fname) {
@@ -138,10 +134,10 @@ void open_editor(char * decrypted_fname) {
 	}
 }
 
-void encrypt_file(char *decrypted_file, char *basefile) {
-	output_file(decrypted_file, basefile, encrypt_buffer);
+void encrypt_file(char *srcfile, char *distfile) {
+	output_file(srcfile, distfile, encrypt_buffer);
 }
 
-void copy_file(char *basefile, char *copyfile) {
-	output_file(basefile, copyfile, copy_buffer);
+void copy_file(char *srcfile, char *distfile) {
+	output_file(srcfile, distfile, copy_buffer);
 }
