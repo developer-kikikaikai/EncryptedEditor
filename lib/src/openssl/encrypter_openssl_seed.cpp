@@ -12,6 +12,34 @@ __attribute__((destructor))
 static void destroy_base_data(void) {
 	free(local_private_key);
 }
+
+static long get_seed_key_in_file(unsigned char **key) {
+	long len;
+	int result;
+	unsigned char * buf = NULL;
+	FILE *fp = fopen(SEED_FILE_PATH, "r");
+	if(!fp) goto failer;
+
+	/*get size*/
+	fseek(fp, 0, SEEK_END);
+	len = ftell(fp);
+	rewind(fp);
+
+	buf = (unsigned char *)calloc(1, len + 1);
+	if(!buf) goto failer;
+
+	result = fread(buf, len, 1, fp);
+	if(result <= 0) goto failer;
+
+	fclose(fp);
+	*key = buf;
+	return len;
+failer:
+	free(buf);
+	if(fp) fclose(fp);
+	return 0;
+}
+
 static void base64_encode(const unsigned char* src_buf, size_t src_len, unsigned char** result) {
 	EVP_EncodeBlock(*result, src_buf, src_len);
 }
@@ -69,10 +97,19 @@ mRZpThpRjmNTllBsz6DntzDd2sjmS+JRDh4r/rpD01wbcqS6tQYN/Yq+sLSMhVsE\
 XGOzVsARyZUc0TjFVA0P9UyaxEkzNQ==\
 ";
 	const unsigned char *local_seed = get_seed();
-	int len=strlen((const char *)local_seed), i=0, j=0;
+	int len=strlen((const char *)local_seed), i=0, j=0, k=0;
+	static unsigned char *file_key=NULL;
+	long file_ley_len = get_seed_key_in_file(&file_key);
+	//TODO: key length is same now
+	//TODO: Hard to see
 	for(i=0;i<len; i++, j=(j+1)%length) {
 		local_key_data[i] = ((local_key_data[i] ^ local_seed[i])) ^ seed[j];
+		if(file_ley_len != 0) {
+			local_key_data[i] = local_key_data[i] ^ file_key[k];
+			k=(k+1)%file_ley_len;
+		}
 	}
+	free(file_key);
 	if(local_private_key == NULL) {
 		local_private_key = (unsigned char *)calloc(1, len * 2);
 	}
