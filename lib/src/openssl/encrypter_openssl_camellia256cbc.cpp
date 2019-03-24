@@ -3,7 +3,7 @@
 #include "encrypter_openssl_camellia256cbc.hpp"
 #include "encrypter_openssl_seed.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 #define CAMELLIA256CBC_PADDING (8)
 static class BaseAllocater encode_allocater_g = BaseAllocater(CAMELLIA256CBC_PADDING);
 static class BaseAllocater decode_allocater_g = BaseAllocater(0);
@@ -35,4 +35,4 @@ EncrypterIF * CAMELLIA256CBCFactory::create_if(void) {
 void CAMELLIA256CBCFactory::delete_if(EncrypterIF * instance) {
 	delete (EncrypterCAMELLIA256CBC *)instance;
 }
-}
+}}//namespace

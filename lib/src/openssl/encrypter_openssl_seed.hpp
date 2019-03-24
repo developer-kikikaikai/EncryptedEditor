@@ -5,8 +5,8 @@
 #ifndef ENCDYPTER_OPENSSL_SEED_H_
 #define ENCDYPTER_OPENSSL_SEED_H_
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 const unsigned char * get_base_key(unsigned char *seed, int length);
 const unsigned char * get_base_iv(unsigned char *seed, int length);
-}
+}}//namespace
 #endif/*ENCDYPTER_OPENSSL_SEED_H_*/

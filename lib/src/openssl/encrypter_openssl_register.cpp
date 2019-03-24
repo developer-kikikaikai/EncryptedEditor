@@ -4,7 +4,7 @@
 #include "encrypter_openssl_chacha20.hpp"
 #include "encrypter_openssl_chacha20_poly1305.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 
 __attribute__((constructor))
 static void encrypter_openssl_constructor() {
@@ -23,4 +23,4 @@ static void encrypter_openssl_constructor() {
 	static CHACHA20_POLY1305Factory chacha20_poly1305_factory;
 	regist_encrypter(ENC_API_ENCRYPT_TYPE_CHACHA20_POLY1305, &chacha20_poly1305_factory);
 }
-}
+}}//namespace

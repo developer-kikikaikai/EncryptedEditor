@@ -6,11 +6,11 @@
 #define ENCDYPTER_OPENSSL_CHACHA20_H_
 #include "encrypter_factory.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 class CHACHA20Factory: public EncrypterFactory {
 public:
 	EncrypterIF * create_if(void);
 	void delete_if(EncrypterIF *);
 };
-}
+}}//namespace
 #endif/*ENCDYPTER_OPENSSL_CHACHA20_H_*/

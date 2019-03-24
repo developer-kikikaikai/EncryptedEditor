@@ -3,7 +3,7 @@
 #include "encrypter_openssl_aria128cbc.hpp"
 #include "encrypter_openssl_seed.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 #define ARIA128CBC_PADDING (16)
 static class BaseAllocater encode_allocater_g = BaseAllocater(ARIA128CBC_PADDING);
 static class BaseAllocater decode_allocater_g = BaseAllocater(0);
@@ -35,4 +35,4 @@ EncrypterIF * ARIA128CBCFactory::create_if(void) {
 void ARIA128CBCFactory::delete_if(EncrypterIF * instance) {
 	delete (EncrypterARIA128CBC *)instance;
 }
-}
+}}//namespace

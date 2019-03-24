@@ -8,7 +8,7 @@
 #include <assert.h>
 #include "encrypter_openssl_buffer.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 /*buffer allocater. buffer size is related to algorithm, so you have to define it into method*/
 struct Allocater {
 	virtual int allocate(int src_len, unsigned char ** result_buf) = 0;
@@ -46,5 +46,5 @@ public:
 	unsigned char * pop();
 };
 
-}
+}}//namespace
 #endif/*ENCDYPTER_OPENSSL_BUFFER_H_*/

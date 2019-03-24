@@ -6,7 +6,7 @@
 #include "encrypter_openssl_buffer.hpp"
 #include <stdio.h>
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 EncrypterBuffer::EncrypterBuffer(Allocater * allocater) {
 	ctx = EVP_CIPHER_CTX_new();
 	assert(ctx != NULL);
@@ -45,4 +45,4 @@ unsigned char * EncrypterBuffer::pop() {
 	_buf=NULL;
 	return ret_buf;
 };
-}
+}}//namespace

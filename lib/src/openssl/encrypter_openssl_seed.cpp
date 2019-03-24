@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 
 static unsigned char *local_private_key = NULL;
 __attribute__((destructor))
@@ -140,4 +140,4 @@ const unsigned char * get_base_iv(unsigned char *seed, int length) {
 	return local_iv_data;
 }
 
-}
+}}//namespace

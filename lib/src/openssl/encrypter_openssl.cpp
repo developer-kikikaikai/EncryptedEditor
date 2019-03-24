@@ -9,7 +9,7 @@
 #define ENC_OPENSSL_SALT_TAG "Salted_libcrypto_"
 #define ENC_OPENSSL_SALT_TAG_LEN strlen(ENC_OPENSSL_SALT_TAG)
 #define ENC_OPENSSL_SALT_LEN (8 + ENC_OPENSSL_SALT_TAG_LEN + 1)
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 
 void EncrypterOpenssl::get_salt(unsigned char *salt) {
 	struct timespec timedata;
@@ -87,4 +87,4 @@ int EncrypterOpenssl::decrypt(const unsigned char *src_buf, int src_len, unsigne
 	*result_buf = buffer.pop();
 	return result_len;
 }
-}
+}}//namespace

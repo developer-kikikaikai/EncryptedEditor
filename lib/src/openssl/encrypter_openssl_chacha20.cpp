@@ -3,7 +3,7 @@
 #include "encrypter_openssl_chacha20.hpp"
 #include "encrypter_openssl_seed.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 #define CHACHA20_PADDING (32)
 static class BaseAllocater encode_allocater_g = BaseAllocater(CHACHA20_PADDING);
 static class BaseAllocater decode_allocater_g = BaseAllocater(0);
@@ -35,4 +35,4 @@ EncrypterIF * CHACHA20Factory::create_if(void) {
 void CHACHA20Factory::delete_if(EncrypterIF * instance) {
 	delete (EncrypterCHACHA20 *)instance;
 }
-}
+}}//namespace

@@ -6,11 +6,11 @@
 #define ENCDYPTER_OPENSSL_ARIA128CBC_H_
 #include "encrypter_factory.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 class ARIA128CBCFactory: public EncrypterFactory {
 public:
 	EncrypterIF * create_if(void);
 	void delete_if(EncrypterIF *);
 };
-}
+}}//namespace
 #endif/*ENCDYPTER_OPENSSL_ARIA128CBC_H_*/

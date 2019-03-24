@@ -8,7 +8,7 @@
 #include "encrypter_factory.hpp"
 #include "encrypter_openssl_buffer.hpp"
 
-namespace encapi::openssl {
+namespace encapi{ namespace openssl {
 /* @brief encrypter base struct*/
 class EncrypterOpenssl : public EncrypterIF {
 private:
@@ -23,5 +23,5 @@ public:
 	int encrypt(const unsigned char *src_buf, int src_len, unsigned char **result_buf);
 	int decrypt(const unsigned char *src_buf, int src_len, unsigned char **result_buf);
 };
-}
+}}//namespace
 #endif/*ENCDYPTER_OPENSSL_H_*/

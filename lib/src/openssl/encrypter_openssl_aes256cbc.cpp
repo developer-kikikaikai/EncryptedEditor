@@ -3,7 +3,7 @@
 #include "encrypter_openssl_aes256cbc.hpp"
 #include "encrypter_openssl_seed.hpp"
 
-namespace encapi::openssl {
+namespace encapi{namespace openssl {
 #define AES256CBC_PADDING (32)
 static class BaseAllocater encode_allocater_g = BaseAllocater(AES256CBC_PADDING);
 static class BaseAllocater decode_allocater_g = BaseAllocater(0);
@@ -35,4 +35,4 @@ EncrypterIF * AES256CBCFactory::create_if(void) {
 void AES256CBCFactory::delete_if(EncrypterIF * instance) {
 	delete (EncrypterAES256CBC *)instance;
 }
-}
+}}//namespace
