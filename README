@@ -19,3 +19,15 @@
 
 - vim editor wrapper: call build/apps/encrypt_vim file_name
 
+### To do test
+
+Please install CUnit and build src. The test application ./build/lib/test/test_main will be created.
+
+```
+wget http://jaist.dl.sourceforge.net/project/cunit/CUnit/2.1-2/CUnit-2.1-2-src.tar.bz2
+tar xvf CUnit-2.1-2-src.tar.bz2
+cd CUnit-2.1-2
+./configure
+make
+make install
+```
