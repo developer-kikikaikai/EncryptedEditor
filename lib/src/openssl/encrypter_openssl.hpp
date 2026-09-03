@@ -16,7 +16,7 @@ private:
 	virtual const unsigned char * _get_key(unsigned char *seed, int len) = 0;
 	virtual const unsigned char * _get_iv(unsigned char *seed, int len) = 0;
 	virtual const EVP_CIPHER * _get_evp_cipher() = 0;
-	void get_salt(unsigned char *salt);
+	bool get_salt(unsigned char *salt);
 public:
 	Allocater *enc_allocater;
 	Allocater *dec_allocater;

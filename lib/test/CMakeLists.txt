@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 #refer https://gist.github.com/adobkin/1073354
 #find file to 
 find_path(CUNIT_INCLUDE_DIR NAMES CUnit/CUnit.h)

@@ -1,25 +1,28 @@
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
+#include <openssl/rand.h>
+#include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include "encrypter_factory.hpp"
 #include "encrypter_openssl.hpp"
 
-#define ENC_OPENSSL_SALT_TAG "Salted_libcrypto_"
-#define ENC_OPENSSL_SALT_TAG_LEN strlen(ENC_OPENSSL_SALT_TAG)
-#define ENC_OPENSSL_SALT_LEN (8 + ENC_OPENSSL_SALT_TAG_LEN + 1)
 namespace encapi{namespace openssl {
 
-void EncrypterOpenssl::get_salt(unsigned char *salt) {
-	struct timespec timedata;
-	clock_gettime(CLOCK_REALTIME, &timedata);
-	struct drand48_data buffer;
-	srand48_r(timedata.tv_nsec, &buffer);
-	long int result;
-	lrand48_r(&buffer, &result);
+static const char ENC_OPENSSL_SALT_TAG[] = "Salted_libcrypto_";
+static const size_t ENC_OPENSSL_SALT_TAG_LEN = sizeof(ENC_OPENSSL_SALT_TAG) - 1;
+static const size_t ENC_OPENSSL_RANDOM_SALT_LEN = 4;
+static const size_t ENC_OPENSSL_SALT_LEN = ENC_OPENSSL_SALT_TAG_LEN +
+	(ENC_OPENSSL_RANDOM_SALT_LEN * 2) + 1;
 
-	snprintf((char *)salt, ENC_OPENSSL_SALT_LEN , "%s%08x", ENC_OPENSSL_SALT_TAG, (unsigned int)result);
+bool EncrypterOpenssl::get_salt(unsigned char *salt) {
+	unsigned char random_salt[ENC_OPENSSL_RANDOM_SALT_LEN];
+	if (RAND_bytes(random_salt, sizeof(random_salt)) != 1) return false;
+
+	snprintf((char *)salt, ENC_OPENSSL_SALT_LEN, "%s%02x%02x%02x%02x",
+		ENC_OPENSSL_SALT_TAG,
+		random_salt[0], random_salt[1], random_salt[2], random_salt[3]);
+	return true;
 }
 
 int EncrypterOpenssl::encrypt(const unsigned char *src_buf, int src_len, unsigned char **result_buf) {
@@ -34,7 +37,7 @@ int EncrypterOpenssl::encrypt(const unsigned char *src_buf, int src_len, unsigne
 	buffer.allocate(src_len + ENC_OPENSSL_SALT_LEN + 1);
 
 	unsigned char salt[ENC_OPENSSL_SALT_LEN + 1];
-	get_salt(salt);
+	if (!get_salt(salt)) return buffer._handle_err();
 
 	if(1 != EVP_EncryptInit_ex(buffer.ctx, _get_evp_cipher(), NULL, _get_key(salt, ENC_OPENSSL_SALT_LEN), _get_iv(salt, ENC_OPENSSL_SALT_LEN))) return buffer._handle_err();
 
