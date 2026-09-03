@@ -10,7 +10,15 @@
 ## How to use
 ### build
 1. Install cmake
-2. Build source code by ./make.sh
+2. Build and test source code by `make`
+
+Individual targets are also available:
+
+```
+make build
+make test
+make all
+```
 
 ### use
 - libencrypt_api.so: use API defined in lib/include/encrypt_api.h
