@@ -10,13 +10,8 @@ find_package_handle_standard_args(CUnit DEFAULT_MSG CUNIT_LIBRARY CUNIT_INCLUDE_
 
 #only build test if env has CUNIT
 IF(CUNIT_FOUND)
-include_directories("${PROJECT_SOURCE_DIR}/lib/include")
-include_directories(${CUNIT_INCLUDEDIR})
-link_directories("${PROJECT_SOURCE_DIR}/lib/src")
-link_directories(${CUNIT_LIBDIR})
-
-add_definitions("-g -O2")
-
 add_executable(test_main main.c)
+target_include_directories(test_main PRIVATE ${CUNIT_INCLUDE_DIR})
 target_link_libraries(test_main encrypt_api ${CUNIT_LIBRARY})
+add_test(NAME encrypt_api_cunit COMMAND test_main)
 ENDIF(CUNIT_FOUND)

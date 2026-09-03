@@ -1,5 +1,5 @@
 #include <CUnit/CUnit.h>
-#include <CUnit/Console.h>
+#include <CUnit/Basic.h>
 #include "encrypt_api.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,7 +10,6 @@ static unsigned char test_binary[TESTBINARY_LEN];
 #define TEST_MULTITIME (50)
 #define TEST_LARGEDATA_LEN (8192)
 
-__attribute__((constructor))
 static void test_initialize() {
 	int i=0;
 	for(i=0;i<TESTBINARY_LEN;i++) {
@@ -108,7 +107,7 @@ static void test_encrypt_binary(enc_api_encrypt_type_e type) {
 	/*check result*/
 	CU_ASSERT_FATAL(0 < dec_buf_len && dec_buf!=NULL);
 	/*check decrypt*/
-	CU_ASSERT(TESTBINARY_LEN == dec_buf_len && memcmp(dec_buf, TESTBINARY, buf_len) == 0);
+	CU_ASSERT(TESTBINARY_LEN == dec_buf_len && memcmp(dec_buf, TESTBINARY, TESTBINARY_LEN) == 0);
 	/*check decrypt*/
 	free(enc_buf);
 	free(dec_buf);
@@ -214,6 +213,7 @@ static struct {
 
 int main() {
 	CU_pSuite enc_suite;
+	test_initialize();
 
 	CU_initialize_registry();
 	enc_suite = CU_add_suite("Encrypt", NULL, NULL);
@@ -222,8 +222,10 @@ int main() {
 	for(i=0; i<sizeof(testcases)/sizeof(testcases[0]); i++) {
 		CU_add_test(enc_suite, testcases[i].name, testcases[i].test);
 	}
-	CU_console_run_tests();
+	CU_basic_set_mode(CU_BRM_VERBOSE);
+	CU_basic_run_tests();
+	unsigned int failures = CU_get_number_of_failures();
 	CU_cleanup_registry();
 
-	return 0;
+	return failures == 0 ? 0 : 1;
 }
